@@ -8,13 +8,12 @@ import os
 class AppGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title('Varlık Saklama')
+        self.root.title('InvestTrackApp')
 
         canvas = Canvas(self.root, height=1000, width=1000, background='gray12')
         canvas.pack()
 
         self.createWidgets()
-        self.getData('database')
 
     def createWidgets(self):
         self.createTable()
@@ -80,6 +79,13 @@ class AppGUI:
         saveButton.grid(sticky='NSEW')
 
     def createChooseSaveMenu(self):
+        self.clearTable()
+        def selectDatabase(*args):
+            self.clearTable()
+            selected_date = valueInside.get()
+            selected_date = 'date' + selected_date.replace('-', '_')
+            self.getData(selected_date)
+
         chooseSaveMenuFrame = Frame(self.root, bg='gainsboro')
         chooseSaveMenuFrame.place(relx=0.75, rely=0.05, relwidth=0.14, relheight=0.03)
         chooseSaveMenuFrame.columnconfigure(0, weight=1)
@@ -89,7 +95,14 @@ class AppGUI:
         showDatabaseFiles = [file.split('e')[-1].replace('_', '-').split('.')[0] for file in databaseFiles]
 
         valueInside = StringVar(self.root)
-        valueInside.set('Tarih Seçin')
+
+        if databaseFiles:
+            valueInside.set(showDatabaseFiles[-1])
+            self.getData(databaseFiles[-1])
+        else:
+            valueInside.set('Tarih Seçin')
+
+        valueInside.trace('w', selectDatabase)
         saveMenu = OptionMenu(chooseSaveMenuFrame, valueInside, *showDatabaseFiles)
         saveMenu.grid(sticky='NSEW')
 
@@ -146,6 +159,8 @@ class AppGUI:
             if (platform, name, quantity, value, total) not in inserted_items:
                 database.insertItem(platform, name, quantity, value, total)
                 inserted_items.add((platform, name, quantity, value, total))
+        
+        self.createChooseSaveMenu()
         database.closeConnection()
 
     def chooseDateWithDatePicker(self):
@@ -199,3 +214,7 @@ class AppGUI:
                     fileName = fileName.split("\\")[-1].split(".db")[0]
                     databaseFiles.append(fileName)
         return databaseFiles
+    
+    def clearTable(self):
+        for item in self.table.get_children():
+            self.table.delete(item)
