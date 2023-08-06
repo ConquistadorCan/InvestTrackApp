@@ -83,6 +83,8 @@ class AppGUI:
         def selectDatabase(*args):
             self.clearTable()
             selected_date = valueInside.get()
+            if selected_date == 'Tarih Yok':
+                return
             selected_date = 'date' + selected_date.replace('-', '_')
             self.getData(selected_date)
 
@@ -96,11 +98,12 @@ class AppGUI:
 
         valueInside = StringVar(self.root)
 
-        if databaseFiles:
+        if showDatabaseFiles:
             valueInside.set(showDatabaseFiles[-1])
             self.getData(databaseFiles[-1])
         else:
             valueInside.set('Tarih Seçin')
+            showDatabaseFiles = ['Tarih Yok']
 
         valueInside.trace('w', selectDatabase)
         saveMenu = OptionMenu(chooseSaveMenuFrame, valueInside, *showDatabaseFiles)
